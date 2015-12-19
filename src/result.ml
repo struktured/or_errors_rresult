@@ -2,10 +2,14 @@ open Or_errors.Std
 
 module Impl = struct
   include Rresult.R
-  let map ~f t = map f t
-(*  let bind ~f t = bind f t*)
+  let map t ~f = map t f
+  let bind t f = (>>=) t f
   let ignore t = map ~f:(fun _ -> ()) t
-  let all t = List.fold_left (fun acc e -> map ~f:(fun l -> e::l) acc) (ok []) t
+  let all (t: ('a, 'b) t list) : ('a list, 'b) t = 
+    let folder acc e = if is_ok e then
+      map acc ~f:(fun l -> get_ok e :: l) else error @@ get_error e
+    in
+    List.fold_left folder (ok []) t
   let all_ignore t = List.fold_left (fun acc e -> map ~f:(fun _ -> ()) acc) (ok ()) t
   let both x y = 
     if 
@@ -19,7 +23,7 @@ module Impl = struct
           error @@ get_error y
     else
       error @@ get_error x
-  let map_error ~f t = 
+  let map_error t ~f = 
     if 
       is_ok t 
     then 
@@ -38,6 +42,6 @@ module Signature : RESULT =
   struct
     include Impl
   end
-
+include Impl
 
 
