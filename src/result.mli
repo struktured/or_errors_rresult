@@ -1,3 +1,4 @@
 open Or_errors.Std
 
-include RESULT with type ('ok, 'err) t = ('ok, 'err) CCError.t
+include module type of Rresult.R
+include RESULT with type ('ok, 'err) t := ('ok, 'err ) t

@@ -1,18 +1,18 @@
 OASISFormat: 0.4
-Name:        or_errors_containers
+Name:        or_errors_rresult
 Version:     0.1
 License:     MIT
 LicenseFile: LICENSE.txt
 Authors:     Carmelo Piccione
-Synopsis:    Ocaml Monad, Error, Result, And Or_error Signatures
+Synopsis:    Ocaml Monad, Error, Result, And Or_error Signatures backed by rresult
 BuildTools:  ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
 
-Library "or_errors_containers"
+Library "or_errors_rresult"
   Pack: true
   Build:              true
   Path:               src
   Modules:            Result, Error, Or_error, Std
-  BuildDepends:       containers, ppx_deriving, ppx_deriving.show, or_errors
+  BuildDepends:       rresult, or_errors
 
 AlphaFeatures : ocamlbuild_more_args

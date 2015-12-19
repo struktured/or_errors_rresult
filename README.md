@@ -1,2 +1,2 @@
-# or_errors_containers
-Monad, Result, Error, Or_error modules backed by the containers library.
+# or_errors_rresult
+Monad, Result, Error, Or_error modules backed by the rresult library.

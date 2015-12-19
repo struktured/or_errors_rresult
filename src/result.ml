@@ -1,40 +1,43 @@
 open Or_errors.Std
- 
-module Impl : RESULT with type ('ok, 'err) t = ('ok, 'err) CCError.t = 
-struct
-module R = CCError
-module Opt = CCOpt
-type ('ok, 'err) t = ('ok, 'err) R.t
 
-let ok = function | `Ok t -> Some t | `Error t -> None
-let error = function | `Ok _ -> None | `Error t -> Some t
-let map x ~f = R.map f x
-let bind x f = R.flat_map f x
-let return = R.return
-let join (t: (('ok, 'err) t, 'err) t) = match t with 
-  | (`Ok (`Ok o)) -> `Ok o
-  | (`Ok (`Error e)) -> `Error e
-  | (`Error _) as e -> e
-let map_error t ~f = CCError.map_err f t
-let all l =
-  let f (t:('ok, 'err) t) =
-    match ok t with
-      | Some res -> `Ok res
-      | None -> `Error (Opt.get_exn (error t)) in
- R.map_l f l
-let all_ignore t = map ~f:(fun (t:unit list) -> ()) (all t)
-let ignore x = map x ~f:(fun _ ->())
-let both x y = 
-  match x,y with 
-   | `Ok o, `Ok o' -> R.return (o, o')
-   | `Ok _, `Error  e -> R.fail e
-   | `Error e, _  -> R.fail e
-module Monad_infix = struct
-  let (>>|) t f = map ~f t
-  let (>|=) t f = map ~f t
-  let (>>=) t f = bind t f
-end
-include Monad_infix
+module Impl = struct
+  include Rresult.R
+  let map ~f t = map f t
+(*  let bind ~f t = bind f t*)
+  let ignore t = map ~f:(fun _ -> ()) t
+  let all t = List.fold_left (fun acc e -> map ~f:(fun l -> e::l) acc) (ok []) t
+  let all_ignore t = List.fold_left (fun acc e -> map ~f:(fun _ -> ()) acc) (ok ()) t
+  let both x y = 
+    if 
+      is_ok x 
+    then 
+        if 
+          is_ok y 
+        then 
+          ok (get_ok x, get_ok y)
+        else
+          error @@ get_error y
+    else
+      error @@ get_error x
+  let map_error ~f t = 
+    if 
+      is_ok t 
+    then 
+      ok @@ get_ok t
+    else      
+      error @@ f @@ get_error t      
+  let (>|=) = (>>|)
+  module Monad_infix = struct
+    include Infix
+    let (>|=) = (>|=)
+  end
+
 end
 
-include Impl
+module Signature : RESULT =
+  struct
+    include Impl
+  end
+
+
+
