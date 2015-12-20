@@ -1,10 +1,9 @@
 open Or_errors.Std
-
 module Impl = struct
   include Rresult.R
-  let map t ~f = map t f
+  let map t ~f = map f t
   let bind t f = (>>=) t f
-  let ignore t = map ~f:(fun _ -> ()) t
+  let ignore t = map t ~f:(fun _ -> ())
   let all (t: ('a, 'b) t list) : ('a list, 'b) t = 
     let folder acc e = if is_ok e then
       map acc ~f:(fun l -> get_ok e :: l) else error @@ get_error e
@@ -38,10 +37,14 @@ module Impl = struct
 
 end
 
+module type S = 
+sig
+  include module type of Rresult.R
+  include RESULT with type ('ok, 'err) t := ('ok, 'err ) t
+end
+
 module Signature : RESULT =
   struct
     include Impl
   end
-include Impl
-
 
