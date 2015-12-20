@@ -22,5 +22,5 @@ remove: [
 ]
 
 depends: [
-  "ocamlfind" "rresult"
+  "ocamlfind" "rresult" "or_errors"
 ]
