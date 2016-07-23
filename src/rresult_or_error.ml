@@ -2,10 +2,10 @@ open Or_errors.Std
 
 module Result = Rresult_result.Impl
 
-module Make(Error:Or_errors.Error.S) : Or_errors.Or_error.S
+module Make(Error:Error.S) : Or_error.S
   with module Result = Result =
 struct
-  module Impl = Or_errors.Or_error.Showable.Make(Result)(Error)
+  module Impl = Or_error.Showable.Make(Result)(Error)
       (struct
         type 'a t = ('a, Error.t) Result.t
         let fail x = Rresult.Error x 
